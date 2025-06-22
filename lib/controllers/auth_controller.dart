@@ -19,8 +19,6 @@ class AuthController extends ChangeNotifier {
             _currentUser = UserApp.fromMap(
                 userDataSnapshot.value as Map<dynamic, dynamic>, user.uid);
           } else {
-            // If user exists in Auth but not in DB (e.g., first login or manual creation)
-            // This case might need special handling based on your app logic
             _currentUser = UserApp(uid: user.uid, email: user.email!, role: 'unknown');
           }
         } catch (e) {
@@ -30,7 +28,7 @@ class AuthController extends ChangeNotifier {
       } else {
         _currentUser = null;
       }
-      notifyListeners(); // Notify listeners (UI) about auth state change
+      notifyListeners();
     });
   }
 
@@ -39,21 +37,19 @@ class AuthController extends ChangeNotifier {
       await _firebaseService.signInWithEmailPassword(email, password);
       // The listener will update _currentUser and notify listeners
     } catch (e) {
-      throw e; // Re-throw to be caught by the UI
+      throw e;
     }
   }
 
   Future<void> signOut() async {
     try {
       await _firebaseService.signOut();
-      // The listener will update _currentUser to null and notify listeners
     } catch (e) {
       print("Error signing out: $e");
       throw e;
     }
   }
 
-  // Method to check initial auth state for routing
   Future<UserApp?> checkInitialAuthState() async {
     User? firebaseUser = _firebaseService.getCurrentUser();
     if (firebaseUser != null) {
@@ -69,5 +65,19 @@ class AuthController extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  /// Get user role as String (e.g., "admin", "driver")
+  Future<String> getUserRole() async {
+    final user = _firebaseService.getCurrentUser();
+    if (user == null) throw Exception("No user logged in");
+
+    final snapshot = await _firebaseService.getUserData(user.uid);
+    if (!snapshot.exists) throw Exception("User data not found");
+
+    final data = snapshot.value as Map<dynamic, dynamic>;
+    if (!data.containsKey('role')) throw Exception("User role not found");
+
+    return data['role'] as String;
   }
 }

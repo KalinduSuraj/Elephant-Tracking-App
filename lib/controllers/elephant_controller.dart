@@ -39,7 +39,7 @@ class ElephantController extends ChangeNotifier {
         );
 
         final bool isWithinDistance = distance <= 800; // Within 800 meters
-        final bool isRecentDetection = DateTime.now().difference(elephant.timestamp).inMinutes <= 10; // Within 10 minutes
+        final bool isRecentDetection = DateTime.now().difference(elephant.timestamp).inMinutes <= 5; // Within 10 minutes
 
         if (isWithinDistance && isRecentDetection) {
           filteredList.add(elephant);

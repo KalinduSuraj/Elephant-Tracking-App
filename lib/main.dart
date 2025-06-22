@@ -1,3 +1,4 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:elephant_tracking_app/views/splash_screen.dart'; // Updated import path
@@ -27,10 +28,34 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Extracted colors from your logo.png and the new image for theme
+    const Color primaryLogoGreen = Color(0xFF4F7942); // A muted forest green from the image
+    const Color darkLogoGreen = Color(0xFF3A5C33);   // A darker shade for accents
+    const Color lightBackgroundGreen = Color(0xFFF0F4F0); // A very pale green for the background
+
     return MaterialApp(
       title: 'Elephant Tracker',
+      debugShowCheckedModeBanner: false, // Removed debug banner
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        // Using a MaterialColor based on the primary logo green
+        primarySwatch: MaterialColor(
+          primaryLogoGreen.value,
+          const <int, Color>{
+            50: Color(0xFFE3EAE2),
+            100: Color(0xFFB8C8B5),
+            200: Color(0xFF8DA788),
+            300: Color(0xFF62865B),
+            400: Color(0xFF4A7144),
+            500: primaryLogoGreen, // Main green
+            600: Color(0xFF47703D),
+            700: darkLogoGreen, // Darker green
+            800: Color(0xFF324F2A),
+            900: Color(0xFF1E3019),
+          },
+        ),
+        primaryColor: primaryLogoGreen, // Explicitly set primary color
+        primaryColorDark: darkLogoGreen, // Explicitly set darker primary color for accents
+        scaffoldBackgroundColor: lightBackgroundGreen, // Set background color for Scaffold
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'Inter',
         appBarTheme: AppBarTheme(
@@ -41,7 +66,8 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
             fontFamily: 'Inter',
           ),
-        ), // Added missing comma here
+          backgroundColor: primaryLogoGreen, // Use primary logo green
+        ),
         // cardTheme: CardTheme(
         //   elevation: 5,
         //   shape: RoundedRectangleBorder(
@@ -50,7 +76,8 @@ class MyApp extends StatelessWidget {
         // ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.green, // Text color
+            foregroundColor: Colors.white,
+            backgroundColor: primaryLogoGreen, // Use primary logo green
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -69,7 +96,7 @@ class MyApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.green, width: 2),
+            borderSide: BorderSide(color: darkLogoGreen, width: 2), // Use darker green for focused border
           ),
           labelStyle: TextStyle(color: Colors.grey, fontFamily: 'Inter'),
           hintStyle: TextStyle(color: Colors.grey[400], fontFamily: 'Inter'),

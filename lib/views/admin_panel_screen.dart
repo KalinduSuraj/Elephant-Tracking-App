@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:elephant_tracking_app/controllers/user_controller.dart'; // Updated import path
 import 'package:elephant_tracking_app/models/user_app.dart'; // Updated import path
 import 'package:provider/provider.dart';
+import 'package:elephant_tracking_app/controllers/auth_controller.dart';
+
+import 'login_screen.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   @override
@@ -53,6 +56,47 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     }
   }
 
+  Future<void> _showLogoutConfirmationDialog() async {
+    final authController = Provider.of<AuthController>(context, listen: false);
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Must tap button to dismiss
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Logout Confirmation', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+          content: Text('Are you sure you want to log out?', style: TextStyle(fontFamily: 'Inter')),
+          actions: [
+            TextButton(
+              child: Text('Cancel', style: TextStyle(color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text('Logout', style: TextStyle(fontFamily: 'Inter')),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await authController.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _logout() {
+    _showLogoutConfirmationDialog();
+  }
+
   @override
   Widget build(BuildContext context) {
     final userController = Provider.of<UserController>(context);
@@ -61,6 +105,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       appBar: AppBar(
         title: Text('Admin Panel', style: TextStyle(fontFamily: 'Inter')),
         backgroundColor: Colors.green,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: _logout,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -172,12 +223,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                                 child: ListTile(
                                   title: Text(user.email, style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Inter')),
                                   subtitle: Text('Role: ${user.role} ${user.name != null ? ' | Name: ${user.name}' : ''}', style: TextStyle(fontFamily: 'Inter')),
-                                  trailing: IconButton(
+                                  trailing: (user.email == 'driver@test.com' || user.email == 'admin@test.com')
+                                      ? null // Hide delete button for these specific emails
+                                      : IconButton(
                                     icon: Icon(Icons.delete, color: Colors.red),
                                     onPressed: () async {
-                                      // Implement delete user functionality
-                                      // This is a complex operation as it involves deleting Firebase Auth user AND Realtime DB entry
-                                      // For now, it will just show a confirmation.
                                       bool? confirmDelete = await showDialog<bool>(
                                         context: context,
                                         builder: (BuildContext context) {

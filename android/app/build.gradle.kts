@@ -11,7 +11,7 @@ android {
     namespace = "com.example.elephant_tracking_app"
 
     // ✅ Set compileSdk manually (not from flutter object)
-    compileSdk = 34
+    compileSdk = 35
 
     // ✅ Explicitly set the correct NDK version (required by Firebase & geolocator)
     ndkVersion = "27.0.12077973"
