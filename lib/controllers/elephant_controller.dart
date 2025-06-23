@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:elephant_tracking_app/models/elephant.dart'; // Updated import path
-import 'package:elephant_tracking_app/services/firebase_service.dart'; // Updated import path
-import 'package:elephant_tracking_app/services/location_service.dart'; // Updated import path
+import 'package:elephant_tracking_app/models/elephant.dart';
+import 'package:elephant_tracking_app/services/firebase_service.dart';
+import 'package:elephant_tracking_app/services/location_service.dart';
 import 'dart:async';
 
 class ElephantController extends ChangeNotifier {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:elephant_tracking_app/views/login_screen.dart'; // Updated import path
+import 'package:elephant_tracking_app/views/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -32,8 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: <Widget>[
             // Your logo here
             Image.asset(
-              'assets/images/logo.png', // Ensure this path is correct in pubspec.yaml
-              height: 200,
+              'assets/images/logo.png',
             ),
             SizedBox(height: 50),
             SpinKitFadingCircle(

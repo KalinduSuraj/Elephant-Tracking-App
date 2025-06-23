@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:elephant_tracking_app/controllers/auth_controller.dart'; // Updated import path
+import 'package:elephant_tracking_app/controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
-import 'package:elephant_tracking_app/views/home_screen.dart'; // Updated import path
+import 'package:elephant_tracking_app/views/home_screen.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'admin_panel_screen.dart'; // Import for SpinKit

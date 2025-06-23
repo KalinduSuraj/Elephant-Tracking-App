@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:elephant_tracking_app/controllers/auth_controller.dart';
-import 'package:elephant_tracking_app/views/login_screen.dart'; // For logout navigation
-import 'package:elephant_tracking_app/views/add_user_screen.dart'; // New screen for adding users
-import 'package:elephant_tracking_app/views/user_list_screen.dart'; // New screen for user list
-import 'package:elephant_tracking_app/views/map_view.dart'; // For Map View card
+import 'package:elephant_tracking_app/views/login_screen.dart';
+import 'package:elephant_tracking_app/views/add_user_screen.dart';
+import 'package:elephant_tracking_app/views/user_list_screen.dart';
+import 'package:elephant_tracking_app/views/map_view.dart';
 import 'package:provider/provider.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
