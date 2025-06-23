@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:elephant_tracking_app/services/firebase_service.dart'; // Updated import path
-import 'package:elephant_tracking_app/models/user_app.dart'; // Updated import path
+import 'package:elephant_tracking_app/services/firebase_service.dart'; 
+import 'package:elephant_tracking_app/models/user_app.dart';
 
 class AuthController extends ChangeNotifier {
   final FirebaseService _firebaseService = FirebaseService();

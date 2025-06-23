@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         final authController = Provider.of<AuthController>(context, listen: false);
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text(
             'Logout Confirmation',
             style: TextStyle(
