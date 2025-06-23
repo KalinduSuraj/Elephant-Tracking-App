@@ -32,6 +32,8 @@ dependencies:
   flutter_spinkit: ^5.2.1
   # For displaying SVG assets (your logo)
   flutter_svg: ^2.0.10+1
+  # Audio players for sound alerts (NEW)
+  audioplayers: ^6.1.0
 
 
 dev_dependencies:
@@ -45,6 +47,7 @@ flutter:
 
   assets:
     - assets/images/logo.png # Make sure you have your logo in this path
+    - assets/audio/elephant_alert.mp3 # NEW: Add your alert sound file here
 
   fonts:
     - family: Inter

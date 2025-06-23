@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:elephant_tracking_app/controllers/auth_controller.dart';
-import 'package:elephant_tracking_app/controllers/user_controller.dart';
-import 'package:elephant_tracking_app/models/user_app.dart'; // Needed for UserRole
 import 'package:elephant_tracking_app/views/login_screen.dart'; // For logout navigation
 import 'package:elephant_tracking_app/views/add_user_screen.dart'; // New screen for adding users
 import 'package:elephant_tracking_app/views/user_list_screen.dart'; // New screen for user list
@@ -16,15 +14,14 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
-  // Custom Logout Confirmation Dialog (Copied from HomeScreen for consistency)
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap a button to dismiss
+      barrierDismissible: false,
       builder: (BuildContext context) {
         final authController = Provider.of<AuthController>(context, listen: false);
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text(
             'Logout Confirmation',
             style: TextStyle(
@@ -49,17 +46,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Theme.of(context).primaryColor, // Green color for cancel
+                  color: Theme.of(context).primaryColor,
                   fontFamily: 'Inter',
                 ),
               ),
               onPressed: () {
-                Navigator.of(context).pop(); // Dismiss dialog
+                Navigator.of(context).pop();
               },
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Red for logout button
+                backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -72,7 +69,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
               onPressed: () async {
-                Navigator.of(context).pop(); // Dismiss dialog
+                Navigator.of(context).pop();
                 await authController.signOut();
                 Navigator.pushReplacement(
                   context,
@@ -91,7 +88,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final authController = Provider.of<AuthController>(context);
     final String? userEmail = authController.currentUser?.email;
     final String greetingName = userEmail != null && userEmail.contains('@')
-        ? userEmail.split('@')[0] // Get username part of email
+        ? userEmail.split('@')[0]
         : 'Admin'; // Default to "Admin"
 
     return Scaffold(

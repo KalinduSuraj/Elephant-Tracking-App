@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart'; // Import Realtime Database
-import 'package:elephant_tracking_app/services/firebase_service.dart'; // Updated import path
-import 'package:elephant_tracking_app/models/user_app.dart'; // Updated import path
+import 'package:elephant_tracking_app/services/firebase_service.dart';
+import 'package:elephant_tracking_app/models/user_app.dart';
 
 class UserController extends ChangeNotifier {
   final FirebaseService _firebaseService = FirebaseService();
-  bool _isLoading = false; // Add isLoading state
+  bool _isLoading = false;
 
   List<UserApp> _users = [];
   List<UserApp> get users => _users;
-  bool get isLoading => _isLoading; // Getter for isLoading
+  bool get isLoading => _isLoading;
 
   // This method combines Firebase Auth user creation with Realtime DB role assignment.
   Future<void> createUserWithEmailPassword(String email, String password, String? name, String role) async {
@@ -66,7 +65,6 @@ class UserController extends ChangeNotifier {
       }
     } catch (e) {
       print("Error fetching all users: $e");
-      // Handle error, e.g., show a message to the admin
     } finally {
       _isLoading = false;
       notifyListeners();

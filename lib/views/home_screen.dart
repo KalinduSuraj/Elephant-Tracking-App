@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:elephant_tracking_app/controllers/auth_controller.dart';
 import 'package:elephant_tracking_app/controllers/elephant_controller.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isAlertVisible = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -32,13 +34,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _audioPlayer.dispose();
     Provider.of<ElephantController>(context, listen: false).removeListener(_updateAlertVisibility);
     Provider.of<ElephantController>(context, listen: false).stopListeningToElephants();
     Provider.of<ElephantController>(context, listen: false).stopLocationUpdates();
     super.dispose();
   }
 
-  void _updateAlertVisibility() {
+  Future<void> _updateAlertVisibility() async {
     final elephantController = Provider.of<ElephantController>(context, listen: false);
     final bool controllerWantsAlert = elephantController.nearbyAlertElephants.isNotEmpty;
 
@@ -46,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isAlertVisible = true;
       });
+      await _audioPlayer.play(AssetSource('audio/elephant_alert.mp3'));
     } else if (!controllerWantsAlert && _isAlertVisible) {
       setState(() {
         _isAlertVisible = false;

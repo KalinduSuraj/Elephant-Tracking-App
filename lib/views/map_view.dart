@@ -72,7 +72,7 @@ class _MapViewState extends State<MapView> {
     }
 
     // Add elephant markers
-    for (var elephant in elephantController.elephants) {
+    for (var elephant in elephantController.nearbyAlertElephants) {
       markers.add(
         Marker(
           point: LatLng(elephant.lat, elephant.lng),

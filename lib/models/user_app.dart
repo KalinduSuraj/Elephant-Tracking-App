@@ -3,8 +3,8 @@ enum UserRole { admin, driver, unknown }
 class UserApp {
   final String uid;
   final String email;
-  final String role; // Stores the role as a string as per Firebase
-  final String? name; // Optional name for the user
+  final String role;
+  final String? name;
 
   UserApp({required this.uid, required this.email, required this.role, this.name});
 
@@ -14,7 +14,7 @@ class UserApp {
       uid: uid,
       email: map['email'] as String,
       role: map['role'] as String,
-      name: map['name'] as String?, // Name is optional
+      name: map['name'] as String?,
     );
   }
 

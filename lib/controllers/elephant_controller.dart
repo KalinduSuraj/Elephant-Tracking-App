@@ -15,44 +15,59 @@ class ElephantController extends ChangeNotifier {
 
   List<Elephant> _elephants = [];
   Position? _currentLocation;
-  List<Elephant> _nearbyAlertElephants = []; // New list for filtered elephants
+  List<Elephant> _nearbyAlertElephants = []; // Filtered elephants
 
   List<Elephant> get elephants => _elephants;
   Position? get currentLocation => _currentLocation;
-  List<Elephant> get nearbyAlertElephants => _nearbyAlertElephants; // Getter for filtered list
+  List<Elephant> get nearbyAlertElephants => _nearbyAlertElephants;
 
-  // Haversine distance calculation (simplified, latlong2 package does this)
+  // Calculate distance in meters using latlong2
   double getDistance(double lat1, double lon1, double lat2, double lon2) {
     final Distance distance = Distance();
-    return distance(LatLng(lat1, lon1), LatLng(lat2, lon2)); // Returns in meters by default
+    return distance(LatLng(lat1, lon1), LatLng(lat2, lon2)); // in meters
   }
 
-  // New method to calculate and update the list of nearby alert elephants
   void _updateNearbyAlertElephants() {
     List<Elephant> filteredList = [];
+
     if (_currentLocation != null) {
       final userLocation = _currentLocation!;
+
       for (var elephant in _elephants) {
         final double distance = getDistance(
-          userLocation.latitude!, userLocation.longitude!,
-          elephant.lat, elephant.lng,
+          userLocation.latitude!,
+          userLocation.longitude!,
+          elephant.lat,
+          elephant.lng,
         );
 
-        final bool isWithinDistance = distance <= 800; // Within 800 meters
-        final bool isRecentDetection = DateTime.now().difference(elephant.timestamp).inMinutes <= 5; // Within 10 minutes
+        final bool isWithinDistance = distance <= 800; // 800 meters
+
+        final Duration diff = DateTime.now().difference(elephant.timestamp);
+        final bool isRecentDetection = diff.inMinutes >= 0 && diff.inMinutes <= 10;
+
 
         if (isWithinDistance && isRecentDetection) {
           filteredList.add(elephant);
         }
       }
     }
+
+    // Debug prints
+    print('Current Time (local): ${DateTime.now()}');
+    print('Current Time (UTC): ${DateTime.now().toUtc()}');
+    for (var elephant in _elephants) {
+      print('Elephant ${elephant.id} seen at: ${elephant.timestamp} (UTC)');
+      print('→ Local: ${elephant.timestamp.toLocal()}');
+      print('→ Difference in minutes: ${DateTime.now().difference(elephant.timestamp.toLocal()).inMinutes}');
+    }
+
     _nearbyAlertElephants = filteredList;
-    notifyListeners(); // Notify UI that nearbyAlertElephants has changed
+    notifyListeners();
   }
 
-
   void startListeningToElephants() {
-    _elephantSubscription?.cancel(); // Cancel previous subscription if any
+    _elephantSubscription?.cancel();
     _elephantSubscription = _firebaseService.getElephantLocationsStream().listen((event) {
       if (event.snapshot.exists && event.snapshot.value != null) {
         final Map<dynamic, dynamic> data = event.snapshot.value as Map<dynamic, dynamic>;
@@ -65,10 +80,10 @@ class ElephantController extends ChangeNotifier {
           }
         });
         _elephants = fetchedElephants;
-        _updateNearbyAlertElephants(); // Recalculate filtered list when all elephants change
+        _updateNearbyAlertElephants();
       } else {
-        _elephants = []; // No elephants found or data removed
-        _updateNearbyAlertElephants(); // Clear filtered list as well
+        _elephants = [];
+        _updateNearbyAlertElephants();
       }
     }, onError: (error) {
       print("Error listening to elephant locations: $error");
@@ -85,17 +100,15 @@ class ElephantController extends ChangeNotifier {
       await _locationService.checkLocationServiceStatus();
       await _locationService.requestLocationPermission();
 
-      _locationSubscription?.cancel(); // Cancel previous subscription if any
+      _locationSubscription?.cancel();
       _locationSubscription = _locationService.getPositionStream().listen((position) {
         _currentLocation = position;
-        _updateNearbyAlertElephants(); // Recalculate filtered list when location changes
+        _updateNearbyAlertElephants();
       }, onError: (error) {
         print("Error getting location updates: $error");
-        // Handle specific errors, e.g., show a message to the user
       });
     } catch (e) {
       print("Failed to start location updates: $e");
-      // Potentially show an alert dialog to the user
     }
   }
 
