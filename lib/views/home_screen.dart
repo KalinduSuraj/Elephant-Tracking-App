@@ -1,37 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:elephant_tracking_app/controllers/auth_controller.dart'; // Updated import path
-import 'package:elephant_tracking_app/controllers/elephant_controller.dart'; // Updated import path
-import 'package:elephant_tracking_app/models/elephant.dart';
-import 'package:elephant_tracking_app/views/map_view.dart'; // Updated import path
-import 'package:elephant_tracking_app/views/settings_page.dart'; // Updated import path
-import 'package:elephant_tracking_app/views/login_screen.dart'; // For logout navigation // Updated import path
+import 'package:elephant_tracking_app/controllers/auth_controller.dart';
+import 'package:elephant_tracking_app/controllers/elephant_controller.dart';
+import 'package:elephant_tracking_app/views/map_view.dart';
+import 'package:elephant_tracking_app/views/settings_page.dart';
+import 'package:elephant_tracking_app/views/login_screen.dart';
 import 'package:provider/provider.dart';
 
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Flag to control the warning overlay visibility
-  // It starts as false, and will be set by the controller or manually dismissed
   bool _isAlertVisible = false;
 
   @override
   void initState() {
     super.initState();
-    // Start listening to elephant data
     Provider.of<ElephantController>(context, listen: false).startListeningToElephants();
-    // Start listening to location updates
     Provider.of<ElephantController>(context, listen: false).startLocationUpdates();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Listen to changes in elephantController's nearbyAlertElephants
-    // This ensures the alert visibility is updated when the controller's state changes.
     Provider.of<ElephantController>(context).addListener(_updateAlertVisibility);
   }
 
@@ -47,8 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final elephantController = Provider.of<ElephantController>(context, listen: false);
     final bool controllerWantsAlert = elephantController.nearbyAlertElephants.isNotEmpty;
 
-    // If the controller indicates an alert should be shown, ensure it becomes visible.
-    // Otherwise, if the controller no longer demands an alert, hide it.
     if (controllerWantsAlert && !_isAlertVisible) {
       setState(() {
         _isAlertVisible = true;
@@ -70,14 +63,14 @@ class _HomeScreenState extends State<HomeScreen> {
         final authController = Provider.of<AuthController>(context, listen: false);
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
-          title: Text(
+          title: const Text(
             'Logout Confirmation',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter',
             ),
           ),
-          content: SingleChildScrollView(
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text(
@@ -94,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Theme.of(context).primaryColor, // Green color for cancel
+                  color: Theme.of(context).primaryColor,
                   fontFamily: 'Inter',
                 ),
               ),
@@ -104,13 +97,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Red for logout button
+                backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Logout',
                 style: TextStyle(
                   fontFamily: 'Inter',
@@ -148,14 +141,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Elephant Tracker Dashboard', style: TextStyle(fontFamily: 'Inter')),
+        title: const Text('Elephant Tracker Dashboard', style: TextStyle(fontFamily: 'Inter')),
         backgroundColor: Theme.of(context).primaryColor, // Use theme color
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
-            onPressed: () => _showLogoutConfirmationDialog(context), // Call custom dialog
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _showLogoutConfirmationDialog(context),
           ),
-          // Removed PopupMenuButton (3 dots) here
         ],
       ),
       body: Stack(
@@ -172,10 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter',
-                    color: Theme.of(context).primaryColor, // Use theme color
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Welcome to your dashboard.',
                   style: TextStyle(
@@ -199,27 +191,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
                             children: [
-                              Icon(Icons.directions_railway, size: 50, color: Colors.blue),
-                              SizedBox(height: 10),
-                              Text(
+                              const Icon(Icons.directions_railway, size: 50, color: Colors.blue),
+                              const SizedBox(height: 10),
+                              const Text(
                                 'Train\nLocation:',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Text(
                                 elephantController.currentLocation == null
                                     ? 'Fetching...'
                                     : 'Lat: ${elephantController.currentLocation!.latitude?.toStringAsFixed(4)}\nLng: ${elephantController.currentLocation!.longitude?.toStringAsFixed(4)}',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 14, fontFamily: 'Inter'),
+                                style: const TextStyle(fontSize: 14, fontFamily: 'Inter'),
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 16), // Spacer between cards
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Card(
                         elevation: 5,
@@ -230,18 +222,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
                             children: [
-                              Icon(Icons.park, size: 50, color: Colors.orange), // Elephant/wildlife icon
-                              SizedBox(height: 10),
-                              Text(
+                              const Icon(Icons.park, size: 50, color: Colors.orange), // Elephant/wildlife icon
+                              const SizedBox(height: 10),
+                              const Text(
                                 'Nearby\nElephants:',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Text(
                                 '$nearbyElephantsCount detected',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.blueAccent),
+                                style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.blueAccent),
                               ),
                             ],
                           ),
@@ -250,14 +242,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Map View Card
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MapView()),
+                      MaterialPageRoute(builder: (context) => const MapView()),
                     );
                   },
                   child: Card(
@@ -270,8 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         children: [
                           Icon(Icons.map, size: 50, color: Theme.of(context).primaryColor), // Use theme color
-                          SizedBox(height: 10),
-                          Text(
+                          const SizedBox(height: 10),
+                          const Text(
                             'Map View',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
                           ),
@@ -280,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Settings Card
                 GestureDetector(
@@ -295,8 +287,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                    child: const Padding(
+                      padding: EdgeInsets.all(20.0),
                       child: Column(
                         children: [
                           Icon(Icons.settings, size: 50, color: Colors.grey),
@@ -321,13 +313,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.warning,
                         color: Colors.white,
                         size: 100,
                       ),
-                      SizedBox(height: 20),
-                      Text(
+                      const SizedBox(height: 20),
+                      const Text(
                         'WARNING!',
                         style: TextStyle(
                           fontSize: 48,
@@ -336,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontFamily: 'Inter',
                         ),
                       ),
-                      Text(
+                      const Text(
                         'ELEPHANT ON RAILWAY!',
                         style: TextStyle(
                           fontSize: 28,
@@ -345,16 +337,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontFamily: 'Inter',
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Text(
                         '($nearbyElephantsCount elephant(s) detected)',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           color: Colors.white70,
                           fontFamily: 'Inter',
                         ),
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
@@ -362,14 +354,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColorDark, // Use a darker green for dismiss
+                          backgroundColor: Theme.of(context).primaryColorDark,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Dismiss Alert',
                           style: TextStyle(fontSize: 18, fontFamily: 'Inter'),
                         ),

@@ -1,85 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:elephant_tracking_app/controllers/user_controller.dart'; // Updated import path
-import 'package:elephant_tracking_app/models/user_app.dart'; // Updated import path
-import 'package:provider/provider.dart';
 import 'package:elephant_tracking_app/controllers/auth_controller.dart';
+import 'package:elephant_tracking_app/controllers/user_controller.dart';
+import 'package:elephant_tracking_app/models/user_app.dart'; // Needed for UserRole
+import 'package:elephant_tracking_app/views/login_screen.dart'; // For logout navigation
+import 'package:elephant_tracking_app/views/add_user_screen.dart'; // New screen for adding users
+import 'package:elephant_tracking_app/views/user_list_screen.dart'; // New screen for user list
+import 'package:elephant_tracking_app/views/map_view.dart'; // For Map View card
+import 'package:provider/provider.dart';
 
-import 'login_screen.dart';
+class AdminDashboardScreen extends StatefulWidget {
+  const AdminDashboardScreen({super.key});
 
-class AdminPanelScreen extends StatefulWidget {
   @override
-  _AdminPanelScreenState createState() => _AdminPanelScreenState();
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminPanelScreenState extends State<AdminPanelScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  String? _selectedRole = 'driver'; // Default role for new users
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<UserController>(context, listen: false).fetchUsers();
-  }
-
-  void _createUser() async {
-    setState(() {
-      _errorMessage = null;
-    });
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _selectedRole == null) {
-      setState(() {
-        _errorMessage = 'Please fill all required fields.';
-      });
-      return;
-    }
-
-    final userController = Provider.of<UserController>(context, listen: false);
-    try {
-      await userController.createUserWithEmailPassword(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-        _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
-        _selectedRole!,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User created successfully!', style: TextStyle(fontFamily: 'Inter'))),
-      );
-      _emailController.clear();
-      _passwordController.clear();
-      _nameController.clear();
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error creating user: $e';
-      });
-    }
-  }
-
-  Future<void> _showLogoutConfirmationDialog() async {
-    final authController = Provider.of<AuthController>(context, listen: false);
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  // Custom Logout Confirmation Dialog (Copied from HomeScreen for consistency)
+  Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // Must tap button to dismiss
+      barrierDismissible: false, // User must tap a button to dismiss
       builder: (BuildContext context) {
+        final authController = Provider.of<AuthController>(context, listen: false);
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Logout Confirmation', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Inter')),
-          content: Text('Are you sure you want to log out?', style: TextStyle(fontFamily: 'Inter')),
-          actions: [
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
+          title: const Text(
+            'Logout Confirmation',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Inter',
+            ),
+          ),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Are you sure you want to log out?',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
             TextButton(
-              child: Text('Cancel', style: TextStyle(color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
-              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor, // Green color for cancel
+                  fontFamily: 'Inter',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss dialog
+              },
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.red, // Red for logout button
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              child: Text('Logout', style: TextStyle(fontFamily: 'Inter')),
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                ),
+              ),
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Dismiss dialog
                 await authController.signOut();
                 Navigator.pushReplacement(
                   context,
@@ -93,180 +86,134 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     );
   }
 
-  void _logout() {
-    _showLogoutConfirmationDialog();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final userController = Provider.of<UserController>(context);
+    final authController = Provider.of<AuthController>(context);
+    final String? userEmail = authController.currentUser?.email;
+    final String greetingName = userEmail != null && userEmail.contains('@')
+        ? userEmail.split('@')[0] // Get username part of email
+        : 'Admin'; // Default to "Admin"
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Panel', style: TextStyle(fontFamily: 'Inter')),
-        backgroundColor: Colors.green,
+        title: const Text('Admin Dashboard', style: TextStyle(fontFamily: 'Inter')),
+        backgroundColor: Theme.of(context).primaryColor,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: _logout,
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _showLogoutConfirmationDialog(context),
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: [
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              margin: EdgeInsets.only(bottom: 20),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Create New User', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
-                    SizedBox(height: 20),
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // Greeting for Admin
+            Text(
+              'Hi, $greetingName!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Welcome to your administration panel.',
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Inter',
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Card for Map View
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MapView()),
+                );
+              },
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Icon(Icons.map, size: 50, color: Theme.of(context).primaryColor),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Map View',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
                       ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: 'Name (Optional)',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    DropdownButtonFormField<String>(
-                      value: _selectedRole,
-                      decoration: InputDecoration(
-                        labelText: 'Role',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      items: <String>['admin', 'driver'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontFamily: 'Inter')),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedRole = newValue;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    if (_errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 15.0),
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red, fontFamily: 'Inter'),
-                        ),
-                      ),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: _createUser,
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white, backgroundColor: Colors.green,
-                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: Text('Create User', style: TextStyle(fontSize: 16, fontFamily: 'Inter')),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Existing Users', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
-                      SizedBox(height: 10),
-                      if (userController.users.isEmpty)
-                        Center(child: Text('No users found.', style: TextStyle(fontFamily: 'Inter')))
-                      else
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: userController.users.length,
-                            itemBuilder: (context, index) {
-                              final user = userController.users[index];
-                              return Card(
-                                margin: EdgeInsets.symmetric(vertical: 8),
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                child: ListTile(
-                                  title: Text(user.email, style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Inter')),
-                                  subtitle: Text('Role: ${user.role} ${user.name != null ? ' | Name: ${user.name}' : ''}', style: TextStyle(fontFamily: 'Inter')),
-                                  trailing: (user.email == 'driver@test.com' || user.email == 'admin@test.com')
-                                      ? null // Hide delete button for these specific emails
-                                      : IconButton(
-                                    icon: Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () async {
-                                      bool? confirmDelete = await showDialog<bool>(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Confirm Deletion', style: TextStyle(fontFamily: 'Inter')),
-                                            content: Text('Are you sure you want to delete user ${user.email}?', style: TextStyle(fontFamily: 'Inter')),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                onPressed: () => Navigator.of(context).pop(false),
-                                                child: Text('Cancel', style: TextStyle(fontFamily: 'Inter')),
-                                              ),
-                                              TextButton(
-                                                onPressed: () => Navigator.of(context).pop(true),
-                                                child: Text('Delete', style: TextStyle(color: Colors.red, fontFamily: 'Inter')),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
+            const SizedBox(height: 16),
 
-                                      if (confirmDelete == true) {
-                                        try {
-                                          await userController.deleteUser(user.uid);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('User deleted successfully!', style: TextStyle(fontFamily: 'Inter'))),
-                                          );
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Error deleting user: $e', style: TextStyle(fontFamily: 'Inter'))),
-                                          );
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+            // Card for Add New User
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddUserScreen()),
+                );
+              },
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Icon(Icons.person_add, size: 50, color: Theme.of(context).primaryColor),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Add New User',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Card for View User List
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const UserListScreen()),
+                );
+              },
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Icon(Icons.people, size: 50, color: Theme.of(context).primaryColor),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'View User List',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+                      ),
                     ],
                   ),
                 ),
@@ -276,13 +223,5 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _nameController.dispose();
-    super.dispose();
   }
 }

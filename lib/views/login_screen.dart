@@ -16,8 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String? _errorMessage;
-  bool _obscurePassword = true; // To toggle password visibility
-  bool _isLoading = false; // New state variable for loading indicator
+  bool _obscurePassword = true;
+  bool _isLoading = false;
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
@@ -31,13 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        // After successful login, get the role
         String role = await authController.getUserRole();
         // Navigate based on role
         if (role == 'admin') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AdminPanelScreen()),
+            MaterialPageRoute(builder: (context) => AdminDashboardScreen()),
           );
         } else if (role == 'driver') {
           Navigator.pushReplacement(
@@ -64,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Use theme background color
-      body: Stack( // Use Stack to overlay the loading indicator
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Stack(
         children: [
           Center(
             child: SingleChildScrollView(
@@ -75,11 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    // Lock Icon at the top
                     Icon(
                       Icons.lock,
                       size: 100,
-                      color: Theme.of(context).primaryColor, // Matching theme color
+                      color: Theme.of(context).primaryColor,
                     ),
                     SizedBox(height: 20),
                     Text(
@@ -87,11 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor, // Matching theme color
+                        color: Theme.of(context).primaryColor,
                         fontFamily: 'Inter',
                       ),
                     ),
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -101,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        prefixIcon: Icon(Icons.email),
+                        prefixIcon: const Icon(Icons.email),
                         filled: true, // Fill the background of the input field
                         fillColor: Colors.white, // Light background for text fields
                       ),
@@ -115,20 +113,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _passwordController,
-                      obscureText: _obscurePassword, // Use the state variable
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         hintText: 'Enter your password',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon: const Icon(Icons.lock),
                         filled: true,
-                        fillColor: Colors.white, // Light background for text fields
-                        suffixIcon: IconButton( // Add eye icon for password visibility
+                        fillColor: Colors.white,
+                        suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword ? Icons.visibility_off : Icons.visibility,
                             color: Theme.of(context).primaryColorDark, // Use darker theme color
@@ -150,32 +148,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     if (_errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 15.0),
                         child: Text(
                           _errorMessage!,
-                          style: TextStyle(color: Colors.red, fontFamily: 'Inter'),
+                          style: const TextStyle(color: Colors.red, fontFamily: 'Inter'),
                         ),
                       ),
                     ElevatedButton(
                       onPressed: _isLoading ? null : _login, // Disable button while loading
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white, backgroundColor: Theme.of(context).primaryColor, // Use theme color
-                        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        minimumSize: Size(double.infinity, 50), // Make button full width
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        minimumSize: const Size(double.infinity, 50), // Make button full width
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 5,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Login',
                         style: TextStyle(fontSize: 18, fontFamily: 'Inter'),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // TextButton(
                     //   onPressed: () {
                     //     // Navigate to registration screen or forgotten password flow
@@ -204,26 +202,26 @@ class _LoginScreenState extends State<LoginScreen> {
           // Loading Overlay
           if (_isLoading)
             Container(
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8), // Semi-transparent theme background
+              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SpinKitThreeBounce( // Using SpinKitThreeBounce for a modern spinner
-                      color: Theme.of(context).primaryColor, // Using the app's primary green color
+                    SpinKitThreeBounce(
+                      color: Theme.of(context).primaryColor,
                       size: 50.0,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       'Logging In...',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor, // Using the app's primary green color
+                        color: Theme.of(context).primaryColor,
                         fontFamily: 'Inter',
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Preparing your dashboard.',
                       style: TextStyle(
