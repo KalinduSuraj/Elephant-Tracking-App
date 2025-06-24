@@ -165,19 +165,28 @@ flutter run
 ```json
 {
   "elephant_locations": {
-    "push_id_1": {
-      "E_ID": "Elephant_001",
-      "latitude": 6.0500,
-      "longitude": 80.2500,
-      "timestamp": 1678886400000
+    "E01": {
+      "id": "E01",
+      "position": {
+        "lat": 7.8850,
+        "lng": 80.7800
+      },
+      "timestamp":"2025/06/22 19:24:59"
+    }
+  },
+  "users": {
+    "wXTRKD54GIWAFlIOiCNjzPWVZNj2": {
+      "email": "admin@test.com",
+      "name": "driver",
+      "role": "admin"
     },
-    "push_id_2": {
-      "E_ID": "Elephant_002",
-      "latitude": 6.0510,
-      "longitude": 80.2510,
-      "timestamp": 1678886460000
+    "ylKqaf4W4jWxX0KkepdWlUQJiqw1":{
+      "email": "driver@gmail.com",
+      "name": "driver",
+      "role": "driver"
     }
   }
+
 }
 ```
 
