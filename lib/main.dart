@@ -6,10 +6,13 @@ import 'package:provider/provider.dart';
 import 'package:elephant_tracking_app/controllers/auth_controller.dart';
 import 'package:elephant_tracking_app/controllers/elephant_controller.dart';
 import 'package:elephant_tracking_app/controllers/user_controller.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  
   runApp(
     MultiProvider(
       providers: [
