@@ -9,10 +9,11 @@ import 'package:elephant_tracking_app/controllers/user_controller.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  await dotenv.load();
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  
+  WidgetsFlutterBinding.ensureInitialized(); // Must come first
+
+  await dotenv.load(fileName: ".env");       // Load .env after binding
+  await Firebase.initializeApp();            // Initialize Firebase
+
   runApp(
     MultiProvider(
       providers: [
@@ -24,6 +25,7 @@ void main() async {
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   @override

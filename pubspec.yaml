@@ -48,6 +48,7 @@ flutter:
   assets:
     - assets/images/logo.png # Make sure you have your logo in this path
     - assets/audio/elephant_alert.mp3 # NEW: Add your alert sound file here
+    - .env
 
   fonts:
     - family: Inter
