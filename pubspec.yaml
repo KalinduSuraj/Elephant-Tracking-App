@@ -8,7 +8,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -21,9 +21,9 @@ dependencies:
   # Firebase Realtime Database for elephant location data
   firebase_database: ^11.0.0
   # Flutter Map for displaying maps (replaces google_maps_flutter)
-  flutter_map: ^6.0.0 # Added flutter_map
+  flutter_map: ^8.1.1 # Added flutter_map
   # Geolocator for getting device's current location
-  geolocator: ^12.0.0
+  geolocator: ^14.0.2
   # LatLong for distance calculations (used by flutter_map as well)
   latlong2: ^0.9.0
   # Provider for state management (a common choice for MVC-like structures in Flutter)
@@ -34,13 +34,19 @@ dependencies:
   flutter_svg: ^2.0.10+1
   # Audio players for sound alerts (NEW)
   audioplayers: ^6.1.0
+  network_info_plus: ^6.1.4
+  multicast_dns: ^0.3.3
+  network_tools: ^2.0.1
+  permission_handler: ^11.3.0
+
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_dotenv: ^5.1.0
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

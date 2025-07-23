@@ -6,7 +6,7 @@ import 'package:elephant_tracking_app/views/map_view.dart';
 import 'package:elephant_tracking_app/views/settings_page.dart';
 import 'package:elephant_tracking_app/views/login_screen.dart';
 import 'package:provider/provider.dart';
-
+import 'package:elephant_tracking_app/controllers/device_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,11 +19,25 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isAlertVisible = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+
+  Future<void> _reloadConnectedDevices() async {
+    setState(() {
+    });
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulate delay
+
+    setState(() {
+
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     Provider.of<ElephantController>(context, listen: false).startListeningToElephants();
     Provider.of<ElephantController>(context, listen: false).startLocationUpdates();
+    Provider.of<DeviceController>(context,listen: false).fetchConnectedDevices();
+    // _reloadConnectedDevices(); // Load connected devices initially
   }
 
   @override
@@ -57,64 +71,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-  // Custom Logout Confirmation Dialog
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap a button to dismiss
+      barrierDismissible: false,
       builder: (BuildContext context) {
         final authController = Provider.of<AuthController>(context, listen: false);
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
-            'Logout Confirmation',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Inter',
-            ),
-          ),
+          title: const Text('Logout Confirmation', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Inter')),
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text(
-                  'Are you sure you want to log out?',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                  ),
-                ),
+                Text('Are you sure you want to log out?', style: TextStyle(fontFamily: 'Inter')),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontFamily: 'Inter',
-                ),
-              ),
+              child: Text('Cancel', style: TextStyle(color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
               onPressed: () {
-                Navigator.of(context).pop(); // Dismiss dialog
+                Navigator.of(context).pop();
               },
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                ),
-              ),
+              child: const Text('Logout', style: TextStyle(fontFamily: 'Inter')),
               onPressed: () async {
-                Navigator.of(context).pop(); // Dismiss dialog
+                Navigator.of(context).pop();
                 await authController.signOut();
                 Navigator.pushReplacement(
                   context,
@@ -132,21 +120,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
     final elephantController = Provider.of<ElephantController>(context);
+    final deviceController = Provider.of<DeviceController>(context);
 
-    // The filtering logic for nearby elephants is now in ElephantController
     final int nearbyElephantsCount = elephantController.nearbyAlertElephants.length;
-    final bool currentShouldShowAlert = elephantController.nearbyAlertElephants.isNotEmpty;
-
-    // Get current user's email for greeting
     final String? userEmail = authController.currentUser?.email;
-    final String greetingName = userEmail != null && userEmail.contains('@')
-        ? userEmail.split('@')[0] // Get username part of email
-        : 'Driver'; // Default to "Driver"
+    final String greetingName = userEmail != null && userEmail.contains('@') ? userEmail.split('@')[0] : 'Driver';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Elephant Tracker Dashboard', style: TextStyle(fontFamily: 'Inter')),
-        backgroundColor: Theme.of(context).primaryColor, // Use theme color
+        backgroundColor: Theme.of(context).primaryColor,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
@@ -154,162 +137,218 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Stack(
+      body: Stack(  // <-- Use Stack to show the alert overlay correctly
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                // "Hi, Driver!" Greeting
-                Text(
-                  'Hi, $greetingName!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
-                    color: Theme.of(context).primaryColor,
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    'Hi, $greetingName!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter',
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Welcome to your dashboard.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Inter',
-                    color: Colors.grey[600],
+                  const SizedBox(height: 8),
+                  Text(
+                    'Welcome to your dashboard.',
+                    style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.grey[600]),
                   ),
-                ),
-                SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // Train Location and Nearby Elephants Cards (Side-by-side)
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.directions_railway, size: 50, color: Colors.blue),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'Train\nLocation:',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                elephantController.currentLocation == null
-                                    ? 'Fetching...'
-                                    : 'Lat: ${elephantController.currentLocation!.latitude?.toStringAsFixed(4)}\nLng: ${elephantController.currentLocation!.longitude?.toStringAsFixed(4)}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 14, fontFamily: 'Inter'),
-                              ),
-                            ],
+                  // Train and Elephant Cards
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                const Icon(Icons.directions_railway, size: 50, color: Colors.blue),
+                                const SizedBox(height: 10),
+                                const Text('Train\nLocation:', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                                const SizedBox(height: 5),
+                                Text(
+                                  elephantController.currentLocation == null
+                                      ? 'Fetching...'
+                                      : 'Lat: ${elephantController.currentLocation!.latitude?.toStringAsFixed(4)}\nLng: ${elephantController.currentLocation!.longitude?.toStringAsFixed(4)}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 14, fontFamily: 'Inter'),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.park, size: 50, color: Colors.orange), // Elephant/wildlife icon
-                              const SizedBox(height: 10),
-                              const Text(
-                                'Nearby\nElephants:',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                '$nearbyElephantsCount detected',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.blueAccent),
-                              ),
-                            ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                const Icon(Icons.park, size: 50, color: Colors.orange),
+                                const SizedBox(height: 10),
+                                const Text('Nearby\nElephants:', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                                const SizedBox(height: 5),
+                                Text('$nearbyElephantsCount detected', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.blueAccent)),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
-                // Map View Card
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MapView()),
-                    );
-                  },
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Icon(Icons.map, size: 50, color: Theme.of(context).primaryColor), // Use theme color
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Map View',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                          ),
-                        ],
+                  // Connected Devices Card
+                  // GestureDetector(
+                  //   onTap: () {
+                  //     deviceController.fetchConnectedDevices();
+                  //   },
+                  //   child: Card(
+                  //     elevation: 5,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(15),
+                  //     ),
+                  //     child: Padding(
+                  //       padding: const EdgeInsets.all(20.0),
+                  //       child: Column(
+                  //         children: [
+                  //           const Icon(Icons.devices, size: 50, color: Colors.blueGrey),
+                  //           const SizedBox(height: 10),
+                  //           const Text(
+                  //             'Connected Devices',
+                  //             style: TextStyle(
+                  //               fontSize: 18,
+                  //               fontWeight: FontWeight.bold,
+                  //               fontFamily: 'Inter',
+                  //             ),
+                  //           ),
+                  //           const SizedBox(height: 10),
+                  //           Text(
+                  //             '${deviceController.deviceModel.connectedDevices}',
+                  //             style: const TextStyle(
+                  //               fontSize: 22,
+                  //               color: Colors.black87,
+                  //               fontWeight: FontWeight.bold,
+                  //             ),
+                  //           ),
+                  //           const SizedBox(height: 5),
+                  //           const Text(
+                  //             'Tap to refresh',
+                  //             style: TextStyle(fontSize: 14, color: Colors.grey),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+
+                  // Connected Devices Card
+                  GestureDetector(
+                    onTap: () {
+                      deviceController.fetchConnectedDevices();
+                    },
+                    child: Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Connected Devices : ',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter',
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '${deviceController.deviceModel.connectedDevices} ',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              'Tap to refresh',
+                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
 
-                // Settings Card
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsPage()),
-                    );
-                  },
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Icon(Icons.settings, size: 50, color: Colors.grey),
-                          SizedBox(height: 10),
-                          Text(
-                            'Settings',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                          ),
-                        ],
+                  const SizedBox(height: 20),
+
+                  // Map View Card
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MapView()));
+                    },
+                    child: Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Icon(Icons.map, size: 50, color: Theme.of(context).primaryColor),
+                            const SizedBox(height: 10),
+                            const Text('Map View', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 16),
+
+                  // Settings Card
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
+                    },
+                    child: Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Icon(Icons.settings, size: 50, color: Colors.grey),
+                            SizedBox(height: 10),
+                            Text('Settings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          if (_isAlertVisible) // Check _isAlertVisible
+
+          if (_isAlertVisible)
             Positioned.fill(
               child: Container(
                 color: Colors.red.withOpacity(0.8),
@@ -317,58 +356,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.warning,
-                        color: Colors.white,
-                        size: 100,
-                      ),
+                      const Icon(Icons.warning, color: Colors.white, size: 100),
                       const SizedBox(height: 20),
-                      const Text(
-                        'WARNING!',
-                        style: TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
-                      const Text(
-                        'ELEPHANT ON RAILWAY!',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
+                      const Text('WARNING!', style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+                      const Text('ELEPHANT ON RAILWAY!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
                       const SizedBox(height: 20),
-                      Text(
-                        '($nearbyElephantsCount elephant(s) detected)',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.white70,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
+                      Text('($nearbyElephantsCount elephant(s) detected)', style: const TextStyle(fontSize: 20, color: Colors.white70, fontFamily: 'Inter')),
                       const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            _isAlertVisible = false; // Dismiss the alert
+                            _isAlertVisible = false;
                           });
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColorDark,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text(
-                          'Dismiss Alert',
-                          style: TextStyle(fontSize: 18, fontFamily: 'Inter'),
-                        ),
+                        child: const Text('Dismiss Alert', style: TextStyle(fontSize: 18, fontFamily: 'Inter')),
                       ),
                     ],
                   ),
@@ -379,4 +386,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 }

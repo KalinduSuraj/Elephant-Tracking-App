@@ -8,6 +8,8 @@ import 'package:elephant_tracking_app/controllers/elephant_controller.dart';
 import 'package:elephant_tracking_app/controllers/user_controller.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'controllers/device_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Must come first
 
@@ -20,6 +22,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => ElephantController()),
         ChangeNotifierProvider(create: (_) => UserController()),
+        ChangeNotifierProvider(create: (_) => DeviceController()),
       ],
       child: MyApp(),
     ),
