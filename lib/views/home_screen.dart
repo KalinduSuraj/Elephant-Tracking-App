@@ -6,7 +6,6 @@ import 'package:elephant_tracking_app/views/map_view.dart';
 import 'package:elephant_tracking_app/views/settings_page.dart';
 import 'package:elephant_tracking_app/views/login_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:elephant_tracking_app/controllers/device_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     Provider.of<ElephantController>(context, listen: false).startListeningToElephants();
     Provider.of<ElephantController>(context, listen: false).startLocationUpdates();
-    Provider.of<DeviceController>(context,listen: false).fetchConnectedDevices();
     // _reloadConnectedDevices(); // Load connected devices initially
   }
 
@@ -120,7 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
     final elephantController = Provider.of<ElephantController>(context);
-    final deviceController = Provider.of<DeviceController>(context);
 
     final int nearbyElephantsCount = elephantController.nearbyAlertElephants.length;
     final String? userEmail = authController.currentUser?.email;
@@ -137,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Stack(  // <-- Use Stack to show the alert overlay correctly
+      body: Stack(
         children: [
           SingleChildScrollView(
             child: Padding(
@@ -258,7 +255,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Connected Devices Card
                   GestureDetector(
                     onTap: () {
-                      deviceController.fetchConnectedDevices();
+                      // Optional: Add refresh logic
+                      // Provider.of<ElephantController>(context, listen: false).refreshDevices();
                     },
                     child: Card(
                       elevation: 5,
@@ -268,35 +266,75 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Connected Devices : ',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Inter',
-                              ),
-                              textAlign: TextAlign.left,
+                            const Row(
+                              children: [
+                                Icon(Icons.devices, size: 40, color: Colors.blueGrey),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Connected Devices',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Inter',
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              '${deviceController.deviceModel.connectedDevices} ',
+                              '${elephantController.connectedDevices.length} device(s) found',
                               style: const TextStyle(
-                                fontSize: 22,
-                                color: Colors.black87,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter',
                               ),
                             ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              'Tap to refresh',
-                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                            const SizedBox(height: 10),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: elephantController.connectedDevices.length,
+                              itemBuilder: (context, index) {
+                                final device = elephantController.connectedDevices[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Card(
+                                    color: Colors.grey[100],
+                                    child: ListTile(
+                                      leading: const Icon(Icons.location_on, color: Colors.green),
+                                      title: Text('ID: ${device.id}'),
+                                      subtitle: Text('Lat: ${device.lat.toStringAsFixed(4)}, Lng: ${device.lng.toStringAsFixed(4)}'),
+                                      onTap: () {
+                                        // Optional: navigate to map or more details
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => MapView(
+                                              center: LatLng(device.lat, device.lng),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                            const Center(
+                              child: Text(
+                                'Tap card to refresh',
+                                style: TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
+
 
                   const SizedBox(height: 20),
 
